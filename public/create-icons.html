@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head><title>Icon Generator</title></head>
+<body>
+<canvas id="canvas192" width="192" height="192"></canvas>
+<canvas id="canvas512" width="512" height="512"></canvas>
+<script>
+function createIcon(canvasId, size) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  
+  // Background
+  ctx.fillStyle = '#0BA5EC';
+  ctx.fillRect(0, 0, size, size);
+  
+  // White cross (medical symbol)
+  ctx.fillStyle = '#FFFFFF';
+  const crossWidth = size * 0.15;
+  const crossHeight = size * 0.5;
+  const centerX = size / 2;
+  const centerY = size / 2;
+  
+  // Vertical bar
+  ctx.fillRect(centerX - crossWidth/2, centerY - crossHeight/2, crossWidth, crossHeight);
+  // Horizontal bar
+  ctx.fillRect(centerX - crossHeight/2, centerY - crossWidth/2, crossHeight, crossWidth);
+  
+  // Text
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = `bold ${size * 0.12}px Arial`;
+  ctx.textAlign = 'center';
+  ctx.fillText('JASH', centerX, size * 0.85);
+}
+
+createIcon('canvas192', 192);
+createIcon('canvas512', 512);
+
+// Download instructions
+document.body.innerHTML += '<p>Right-click each canvas and "Save image as..."</p>';
+document.body.innerHTML += '<p>Save as icon-192.png and icon-512.png</p>';
+</script>
+</body>
+</html>
