@@ -19,6 +19,7 @@ import {
   updateUser,
   subscribeToUser,
   getOrganization,
+  getAllUsers,
 } from "@/services/firebase";
 import type { User, UserRole, Organization } from "@/types";
 import { useToast } from "@/hooks/use-toast";
@@ -29,11 +30,11 @@ interface AuthContextType {
   organization: Organization | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (
+  createUserAsSuperAdmin: (
     email: string,
     password: string,
     name: string,
-    role: UserRole,
+    role: Exclude<UserRole, "superadmin">,
     organizationId: string,
   ) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -116,23 +117,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         // Fetch initial user data
-        const initialUserData = await getUser(fbUser.uid);
-        if (initialUserData) {
-          setUser(initialUserData);
-          if (initialUserData.organizationId) {
-            try {
-              const orgData = await getOrganization(
-                initialUserData.organizationId,
-              );
-              setOrganization(orgData);
-            } catch (error) {
-              console.error("Failed to load organization:", error);
-              setOrganization(null);
-            }
+        let initialUserData = await getUser(fbUser.uid);
+        if (!initialUserData) {
+          // Check if this is the first user (no users in DB yet)
+          const allUsers = await getAllUsers();
+          const isFirstUser = allUsers.length === 0;
+
+          // Create user in DB
+          initialUserData = {
+            uid: fbUser.uid,
+            email: fbUser.email || "",
+            name: fbUser.displayName || fbUser.email?.split("@")[0] || "Admin",
+            role: isFirstUser ? "superadmin" : "admin", // First user is superadmin!
+            organizationId: "",
+            createdAt: Date.now(),
+            sessionId: CURRENT_SESSION_ID,
+          };
+          await createUser(fbUser.uid, initialUserData);
+        }
+
+        setUser(initialUserData);
+        if (initialUserData.organizationId) {
+          try {
+            const orgData = await getOrganization(
+              initialUserData.organizationId,
+            );
+            setOrganization(orgData);
+          } catch (error) {
+            console.error("Failed to load organization:", error);
+            setOrganization(null);
           }
-        } else {
-          setUser(null);
-          setOrganization(null);
         }
       } else {
         setUser(null);
@@ -171,11 +185,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (
+  const createUserAsSuperAdmin = async (
     email: string,
     password: string,
     name: string,
-    role: UserRole,
+    role: Exclude<UserRole, "superadmin">,
     organizationId: string,
   ) => {
     try {
@@ -185,7 +199,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       );
 
-      // Create user profile in database with current session ID and org ID
+      // Create user profile in database
       await createUser(userCredential.user.uid, {
         uid: userCredential.user.uid,
         email,
@@ -193,7 +207,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role,
         organizationId,
         createdAt: Date.now(),
-        sessionId: CURRENT_SESSION_ID,
       });
 
       return { error: null };
@@ -256,7 +269,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         organization,
         loading,
         signIn,
-        signUp,
+        createUserAsSuperAdmin,
         signOut,
         switchOrganization,
       }}

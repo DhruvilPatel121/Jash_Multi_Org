@@ -4,37 +4,46 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Activity, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { hasAnyUsers } from "@/services/firebase";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingUsers, setCheckingUsers] = useState(true);
+  const [allowSignUp, setAllowSignUp] = useState(false);
   const { signIn, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Navigate to dashboard when user becomes available (after login or if already logged in)
+  // Check if there are any users in the database
+  useEffect(() => {
+    const check = async () => {
+      const hasUsers = await hasAnyUsers();
+      setAllowSignUp(!hasUsers);
+      setCheckingUsers(false);
+    };
+    check();
+  }, []);
+
+  // Navigate to dashboard when user becomes available
   useEffect(() => {
     if (!authLoading && user) {
-      // Clear loading state if it was set during login
       if (loading) {
         setLoading(false);
       }
-      // Navigate to dashboard
       navigate("/", { replace: true });
     }
   }, [user, authLoading, loading, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -61,20 +70,57 @@ export default function LoginPage() {
         title: "Success",
         description: "Logged in successfully",
       });
-      // Keep loading true - navigation will happen via useEffect when user is set
-      // The loading will be cleared when navigation occurs
     }
   };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email || !password || !name) {
+      toast({
+        title: "Error",
+        description: "Please enter name, email and password",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      if (userCredential.user) {
+        await userCredential.user.updateProfile({ displayName: name });
+      }
+      toast({
+        title: "Success",
+        description: "Super admin account created successfully",
+      });
+    } catch (error: any) {
+      setLoading(false);
+      toast({
+        title: "Sign Up Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (checkingUsers) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          {/* <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-              <Activity className="w-8 h-8 text-primary-foreground" />
-            </div>
-          </div> */}
           <div className="flex justify-center mb-4">
             <img
               src="images/logo/logo.png"
@@ -82,13 +128,24 @@ export default function LoginPage() {
               className="h-[15rem] w-auto object-contain"
             />
           </div>
-          {/* <CardTitle className="text-2xl font-bold">
-            Jash Physiotherapy
-          </CardTitle>
-          <CardDescription>Patient Management System</CardDescription> */}
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form
+            onSubmit={isSignUp ? handleSignUp : handleSignIn}
+            className="space-y-4"
+          >
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  placeholder="Enter your full name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -115,13 +172,33 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Logging in...
+                  {isSignUp ? "Creating account..." : "Logging in..."}
                 </>
+              ) : isSignUp ? (
+                "Create Super Admin"
               ) : (
                 "Login"
               )}
             </Button>
           </form>
+          {allowSignUp && (
+            <div className="mt-4 text-center">
+              <Button
+                variant="link"
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  setEmail("");
+                  setPassword("");
+                  setName("");
+                }}
+                disabled={loading}
+              >
+                {isSignUp
+                  ? "Already have an account? Login"
+                  : "Create first super admin account"}
+              </Button>
+            </div>
+          )}
           <div className="mt-4 text-center text-sm text-muted-foreground">
             <p>
               © {new Date().getFullYear()} Dhruvil Bhuva. All rights reserved.

@@ -88,13 +88,24 @@ export const getAllOrganizations = async (): Promise<Organization[]> => {
 
 export const updateOrganization = async (orgId: string, updates: Partial<Organization>) => {
   const orgRef = ref(database, `organizations/${orgId}`);
-  await update(orgRef, updates);
+  const dataToUpdate = sanitizeData(updates);
+  await update(orgRef, dataToUpdate);
+};
+
+export const deleteOrganization = async (orgId: string) => {
+  const orgRef = ref(database, `organizations/${orgId}`);
+  await remove(orgRef);
+  
+  // Also delete all organization data
+  const orgDataRef = ref(database, `organizations/${orgId}`);
+  await remove(orgDataRef);
 };
 
 // User operations
 export const createUser = async (uid: string, userData: Omit<User, 'uid'>) => {
   const userRef = ref(database, `users/${uid}`);
-  await set(userRef, { uid, ...userData });
+  const dataToSave = sanitizeData({ uid, ...userData });
+  await set(userRef, dataToSave);
 };
 
 export const getUser = async (uid: string, _organizationId?: string): Promise<User | null> => {
@@ -118,6 +129,12 @@ export const getAllUsers = async (organizationId?: string): Promise<User[]> => {
   return users;
 };
 
+export const hasAnyUsers = async (): Promise<boolean> => {
+  const usersRef = ref(database, 'users');
+  const snapshot = await get(usersRef);
+  return snapshot.exists();
+};
+
 export const getUsersByOrganization = async (organizationId: string): Promise<User[]> => {
   return getAllUsers(organizationId);
 };
@@ -132,7 +149,8 @@ export const getAllDoctors = async (organizationId?: string): Promise<User[]> =>
 
 export const updateUser = async (uid: string, updates: Partial<User>) => {
   const userRef = ref(database, `users/${uid}`);
-  await update(userRef, updates);
+  const dataToUpdate = sanitizeData({ ...updates });
+  await update(userRef, dataToUpdate);
 };
 
 export const subscribeToUser = (uid: string, callback: (userData: User | null) => void) => {
@@ -143,7 +161,7 @@ export const subscribeToUser = (uid: string, callback: (userData: User | null) =
   return () => off(userRef, 'value', unsubscribe);
 };
 
-export const deleteUser = async (uid: string, _organizationId?: string) => {
+export const deleteUser = async (uid: string) => {
   const userRef = ref(database, `users/${uid}`);
   await remove(userRef);
 };

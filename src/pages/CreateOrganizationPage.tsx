@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Building2, ArrowLeft } from "lucide-react";
-import { createOrganization, updateUser } from "@/services/firebase";
+import { createOrganization, updateUser, createUser } from "@/services/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 

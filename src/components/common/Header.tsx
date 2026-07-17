@@ -12,6 +12,7 @@ import {
   LogOut,
   User,
   UserRound,
+  Building2,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 
@@ -30,6 +31,11 @@ export default function Header() {
     { path: "/", label: "Dashboard", icon: Home },
     { path: "/patients", label: "Patients", icon: Users },
     { path: "/doctors", label: "Doctors", icon: UserRound },
+  ];
+
+  const superAdminNavItems = [
+    { path: "/super-admin", label: "Super Admin", icon: Building2 },
+    ...navItems,
   ];
 
   const isActive = (path: string) => {
@@ -62,7 +68,10 @@ export default function Header() {
                   </div>
                 </div>
                 <nav className="flex-1 space-y-2">
-                  {navItems.map((item) => (
+                  {(user?.role === "superadmin"
+                    ? superAdminNavItems
+                    : navItems
+                  ).map((item) => (
                     <Link
                       key={item.path}
                       to={item.path}
@@ -111,24 +120,36 @@ export default function Header() {
               className="h-[4rem] sm:h-[3rem] object-contain"
             />
 
-            <div className="hidden sm:block">
-            </div>
+            <div className="hidden sm:block"></div>
           </Link>
         </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-2">
-          {navItems.map((item) => (
-            <Link key={item.path} to={item.path}>
-              <Button
-                variant={isActive(item.path) ? "default" : "ghost"}
-                className="gap-2"
-              >
-                <item.icon className="w-4 h-4" />
-                <span className="hidden md:inline">{item.label}</span>
-              </Button>
-            </Link>
-          ))}
+          {(user?.role === "superadmin" ? superAdminNavItems : navItems).map(
+            (item) => (
+              <Link key={item.path} to={item.path}>
+                <Button
+                  variant={
+                    item.path === "/super-admin"
+                      ? "default"
+                      : isActive(item.path)
+                        ? "default"
+                        : "ghost"
+                  }
+                  className="gap-2"
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span className="hidden md:inline">{item.label}</span>
+                  {item.path === "/super-admin" && (
+                    <Badge variant="secondary" className="ml-1">
+                      Admin
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
+            ),
+          )}
         </nav>
 
         {/* User Menu - Show on all screens */}

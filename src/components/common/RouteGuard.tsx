@@ -9,7 +9,7 @@ interface RouteGuardProps {
 // Please add the pages that can be accessed without logging in to PUBLIC_ROUTES.
 const PUBLIC_ROUTES = ['/login', '/403', '/404'];
 // Pages that don't require an organization
-const NO_ORG_REQUIRED = ['/login', '/select-organization', '/create-organization', '/403', '/404'];
+const NO_ORG_REQUIRED = ['/login', '/select-organization', '/create-organization', '/403', '/404', '/super-admin'];
 
 function matchPublicRoute(path: string, patterns: string[]) {
   return patterns.some(pattern => {
@@ -31,10 +31,11 @@ export function RouteGuard({ children }: RouteGuardProps) {
 
     const isPublic = matchPublicRoute(location.pathname, PUBLIC_ROUTES);
     const needsNoOrg = matchPublicRoute(location.pathname, NO_ORG_REQUIRED);
+    const isSuperAdmin = user?.role === 'superadmin';
 
     if (!user && !isPublic) {
       navigate('/login', { state: { from: location.pathname }, replace: true });
-    } else if (user && !user.organizationId && !needsNoOrg) {
+    } else if (user && !isSuperAdmin && !user.organizationId && !needsNoOrg) {
       navigate('/select-organization', { replace: true });
     }
   }, [user, organization, loading, location.pathname, navigate]);

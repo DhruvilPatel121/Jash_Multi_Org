@@ -68,7 +68,7 @@ export interface CaseNote {
  * - 'admin' or 'doctor': Main doctor with full permissions including patient deletion
  * - 'staff': Staff members who can create and edit all records but cannot delete patients
  */
-export type UserRole = 'doctor' | 'staff' | 'admin';
+export type UserRole = 'superadmin' | 'doctor' | 'staff' | 'admin';
 
 // User type
 export interface User {

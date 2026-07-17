@@ -1,18 +1,19 @@
-import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import PatientsPage from './pages/PatientsPage';
-import PatientFormPage from './pages/PatientFormPage';
-import PatientDetailPage from './pages/PatientDetailPage';
-import VisitFormPage from './pages/VisitFormPage';
-import VisitDetailPage from './pages/VisitDetailPage';
-import TodaysVisitsPage from './pages/TodaysVisitsPage';
-import FollowUpsDuePage from './pages/FollowUpsDuePage';
-import PendingPrescriptionsPage from './pages/PendingPrescriptionsPage';
-import DoctorsPage from './pages/DoctorsPage';
-import DoctorPatientsPage from './pages/DoctorPatientsPage';
-import OrganizationSelectionPage from './pages/OrganizationSelectionPage';
-import CreateOrganizationPage from './pages/CreateOrganizationPage';
-import type { ReactNode } from 'react';
+import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
+import PatientsPage from "./pages/PatientsPage";
+import PatientFormPage from "./pages/PatientFormPage";
+import PatientDetailPage from "./pages/PatientDetailPage";
+import VisitFormPage from "./pages/VisitFormPage";
+import VisitDetailPage from "./pages/VisitDetailPage";
+import TodaysVisitsPage from "./pages/TodaysVisitsPage";
+import FollowUpsDuePage from "./pages/FollowUpsDuePage";
+import PendingPrescriptionsPage from "./pages/PendingPrescriptionsPage";
+import DoctorsPage from "./pages/DoctorsPage";
+import DoctorPatientsPage from "./pages/DoctorPatientsPage";
+import OrganizationSelectionPage from "./pages/OrganizationSelectionPage";
+import CreateOrganizationPage from "./pages/CreateOrganizationPage";
+import SuperAdminDashboardPage from "./pages/SuperAdminDashboardPage";
+import type { ReactNode } from "react";
 
 interface RouteConfig {
   name: string;
@@ -23,92 +24,98 @@ interface RouteConfig {
 
 const routes: RouteConfig[] = [
   {
-    name: 'Login',
-    path: '/login',
+    name: "Login",
+    path: "/login",
     element: <LoginPage />,
-    visible: false
+    visible: false,
   },
   {
-    name: 'Select Organization',
-    path: '/select-organization',
+    name: "Select Organization",
+    path: "/select-organization",
     element: <OrganizationSelectionPage />,
-    visible: false
+    visible: false,
   },
   {
-    name: 'Create Organization',
-    path: '/create-organization',
+    name: "Create Organization",
+    path: "/create-organization",
     element: <CreateOrganizationPage />,
-    visible: false
+    visible: false,
   },
   {
-    name: 'Dashboard',
-    path: '/',
-    element: <DashboardPage />
+    name: "Super Admin Dashboard",
+    path: "/super-admin",
+    element: <SuperAdminDashboardPage />,
+    visible: false,
   },
   {
-    name: 'Patients',
-    path: '/patients',
-    element: <PatientsPage />
+    name: "Dashboard",
+    path: "/",
+    element: <DashboardPage />,
   },
   {
-    name: 'Doctors',
-    path: '/doctors',
-    element: <DoctorsPage />
+    name: "Patients",
+    path: "/patients",
+    element: <PatientsPage />,
   },
   {
-    name: 'Doctor Patients',
-    path: '/doctors/:doctorId/patients',
+    name: "Doctors",
+    path: "/doctors",
+    element: <DoctorsPage />,
+  },
+  {
+    name: "Doctor Patients",
+    path: "/doctors/:doctorId/patients",
     element: <DoctorPatientsPage />,
-    visible: false
+    visible: false,
   },
   {
-    name: 'Add Patient',
-    path: '/patients/new',
+    name: "Add Patient",
+    path: "/patients/new",
     element: <PatientFormPage />,
-    visible: false
+    visible: false,
   },
   {
-    name: 'Edit Patient',
-    path: '/patients/:id/edit',
+    name: "Edit Patient",
+    path: "/patients/:id/edit",
     element: <PatientFormPage />,
-    visible: false
+    visible: false,
   },
   {
-    name: 'Patient Detail',
-    path: '/patients/:id',
+    name: "Patient Detail",
+    path: "/patients/:id",
     element: <PatientDetailPage />,
-    visible: false
+    visible: false,
   },
   {
-    name: 'Add Visit',
-    path: '/patients/:patientId/visits/new',
+    name: "Add Visit",
+    path: "/patients/:patientId/visits/new",
     element: <VisitFormPage />,
-    visible: false
+    visible: false,
   },
   {
-    name: 'Visit Detail',
-    path: '/patients/:patientId/visits/:visitId',
+    name: "Visit Detail",
+    path: "/patients/:patientId/visits/:visitId",
     element: <VisitDetailPage />,
-    visible: false
+    visible: false,
   },
   {
     name: "Today's Visits",
-    path: '/visits/today',
+    path: "/visits/today",
     element: <TodaysVisitsPage />,
-    visible: false
+    visible: false,
   },
   {
-    name: 'Follow-ups Due',
-    path: '/visits/follow-ups',
+    name: "Follow-ups Due",
+    path: "/visits/follow-ups",
     element: <FollowUpsDuePage />,
-    visible: false
+    visible: false,
   },
   {
-    name: 'Pending Prescriptions',
-    path: '/prescriptions/pending',
+    name: "Pending Prescriptions",
+    path: "/prescriptions/pending",
     element: <PendingPrescriptionsPage />,
-    visible: false
-  }
+    visible: false,
+  },
 ];
 
 export default routes;
