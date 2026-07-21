@@ -24,7 +24,7 @@ export default function DoctorPatientsPage() {
       try {
         if (!doctorId || !organizationId) return;
         const [doc, allPatients] = await Promise.all([
-          getUser(organizationId, doctorId),
+          getUser(doctorId),
           getAllPatients(organizationId),
         ]);
         setDoctor(doc);

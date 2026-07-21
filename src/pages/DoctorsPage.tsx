@@ -131,7 +131,7 @@ export default function DoctorsPage() {
       // Note: This only deletes from Database.
       // Deleting from Auth requires Admin SDK or user being logged in.
       // For this app, deleting from DB is enough to hide them.
-      await deleteUser(organizationId, doctorToDelete.uid);
+      await deleteUser(doctorToDelete.uid);
       toast({
         title: "Success",
         description: "Doctor removed from list",
